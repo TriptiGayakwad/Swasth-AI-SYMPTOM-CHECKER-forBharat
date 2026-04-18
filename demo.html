@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Demo - SwasthAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500&family=Cormorant+Garamond:wght@400;500;600&family=Great+Vibes&display=swap');
+        
+        :root {
+            --primary-deep-teal: #0f766e;
+            --primary-teal: #14b8a6;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .heading-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        .result-card {
+            animation: popIn 0.4s ease forwards;
+        }
+        
+        @keyframes popIn {
+            0% { opacity: 0; transform: translateY(12px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-[#f8f1eb] text-slate-900">
+    <!-- Simple Navbar -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-8 py-6 flex items-center justify-between">
+            <div class="flex items-center gap-x-3">
+                <div class="w-9 h-9 bg-[#0f766e] rounded-2xl flex items-center justify-center text-3xl text-white">🩺</div>
+                <h1 class="heading-font text-3xl tracking-[-1px] text-slate-900">SwasthAI</h1>
+            </div>
+            <a href="index2.html" class="text-slate-700 hover:text-[#0f766e]">← Back to Home</a>
+        </div>
+    </nav>
+
+    <!-- LIVE DEMO -->
+    <section class="max-w-7xl mx-auto px-8 py-24 bg-[#f8f1eb]">
+        <div class="text-center mb-12">
+            <span class="uppercase text-[#0f766e] text-sm font-semibold tracking-widest">Live Demo</span>
+            <h2 class="heading-font text-5xl text-slate-900 mt-6">Speak your symptoms.<br>Get instant, clear guidance.</h2>
+        </div>
+        
+        <div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl border border-slate-100 p-8">
+            <div class="flex justify-between items-center mb-8">
+                <div class="flex items-center gap-x-3">
+                    <div class="w-9 h-9 bg-[#0f766e] text-white rounded-2xl flex items-center justify-center text-2xl">🩺</div>
+                    <div>
+                        <p class="font-semibold text-slate-900">SwasthAI Assistant</p>
+                        <p class="text-xs text-[#14b8a6]">Hindi • Offline mode</p>
+                    </div>
+                </div>
+                
+                <button onclick="toggleVoice()" id="voiceBtn"
+                        class="flex items-center gap-x-3 bg-[#0f766e] hover:bg-[#14b8a6] text-white font-semibold px-8 py-3 rounded-3xl">
+                    <i id="micIcon" class="fa-solid fa-microphone"></i>
+                    <span id="voiceText">START SPEAKING</span>
+                </button>
+            </div>
+            
+            <div id="chatWindow" class="bg-[#f8f1eb] rounded-3xl p-6 min-h-[380px] space-y-6 overflow-y-auto mb-8">
+                <!-- JS populated -->
+            </div>
+            
+            <div class="flex gap-x-3">
+                <input id="symptomInput" 
+                       type="text"
+                       placeholder="Type symptoms or speak (e.g. bukhar aur khansi hai)"
+                       class="flex-1 bg-white border border-slate-200 focus:border-[#14b8a6] rounded-3xl px-7 py-5 outline-none text-lg placeholder:text-slate-400">
+                
+                <button onclick="analyzeSymptoms()" 
+                        class="bg-[#0f766e] hover:bg-[#14b8a6] text-white px-12 font-semibold rounded-3xl flex items-center">
+                    ANALYZE
+                    <i class="fa-solid fa-arrow-right ml-3"></i>
+                </button>
+            </div>
+            
+            <p class="text-center text-xs text-slate-400 mt-8">This demo runs locally • Real version uses secure Indic AI model</p>
+        </div>
+    </section>
+
+    <script>
+        let recognition = null;
+        let isListening = false;
+        
+        function toggleVoice() {
+            const btn = document.getElementById('voiceBtn');
+            const icon = document.getElementById('micIcon');
+            const text = document.getElementById('voiceText');
+            
+            if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+                alert("Your browser supports voice input. In the real app we use Indic speech-to-text.");
+                return;
+            }
+            
+            if (!recognition) {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.lang = 'hi-IN';
+                recognition.onresult = (event) => {
+                    document.getElementById('symptomInput').value = event.results[0][0].transcript;
+                    analyzeSymptoms();
+                    isListening = false;
+                    icon.classList.remove('fa-stop');
+                    icon.classList.add('fa-microphone');
+                    text.textContent = 'START SPEAKING';
+                };
+            }
+            
+            if (isListening) {
+                recognition.stop();
+                isListening = false;
+                icon.classList.remove('fa-stop');
+                icon.classList.add('fa-microphone');
+                text.textContent = 'START SPEAKING';
+            } else {
+                recognition.start();
+                isListening = true;
+                icon.classList.remove('fa-microphone');
+                icon.classList.add('fa-stop');
+                text.textContent = 'LISTENING...';
+            }
+        }
+        
+        function analyzeSymptoms() {
+            const input = document.getElementById('symptomInput').value.trim() || "Bukhar aur khansi hai";
+            const chat = document.getElementById('chatWindow');
+            
+            const userMsg = document.createElement('div');
+            userMsg.className = 'flex justify-end';
+            userMsg.innerHTML = `<div class="max-w-[70%] bg-[#0f766e] text-white px-6 py-4 rounded-3xl rounded-br-none">${input}</div>`;
+            chat.appendChild(userMsg);
+            
+            const loading = document.createElement('div');
+            loading.className = 'flex gap-x-4';
+            loading.innerHTML = `
+                <div class="w-9 h-9 bg-[#0f766e] text-white rounded-2xl flex items-center justify-center text-2xl flex-shrink-0">🩺</div>
+                <div class="flex-1 bg-white px-6 py-4 rounded-3xl rounded-bl-none flex items-center">
+                    <div class="w-4 h-4 border-2 border-[#14b8a6] border-t-transparent animate-spin rounded-full"></div>
+                    <span class="ml-3 text-slate-600">Analyzing symptoms...</span>
+                </div>`;
+            chat.appendChild(loading);
+            chat.scrollTop = chat.scrollHeight;
+            
+            setTimeout(() => {
+                loading.remove();
+                
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'flex gap-x-4 result-card';
+                aiMsg.innerHTML = `
+                    <div class="w-9 h-9 bg-[#0f766e] text-white rounded-2xl flex items-center justify-center text-2xl flex-shrink-0">🩺</div>
+                    <div class="flex-1 bg-white px-6 py-5 rounded-3xl rounded-bl-none">
+                        <p class="text-[#0f766e] font-medium mb-4">Based on your symptoms:</p>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center px-5 py-4 bg-slate-50 rounded-2xl text-sm">
+                                <div>Common Cold</div>
+                                <div class="px-6 py-1 bg-[#10b981] text-white rounded-3xl text-xs font-medium">Low risk</div>
+                            </div>
+                            <div class="flex justify-between items-center px-5 py-4 bg-slate-50 rounded-2xl text-sm">
+                                <div>Flu</div>
+                                <div class="px-6 py-1 bg-amber-100 text-amber-700 rounded-3xl text-xs font-medium">Medium risk</div>
+                            </div>
+                            <div class="flex justify-between items-center px-5 py-4 bg-slate-50 rounded-2xl text-sm">
+                                <div>Pneumonia (possible)</div>
+                                <div class="px-6 py-1 bg-red-100 text-red-700 rounded-3xl text-xs font-medium">High risk • See doctor</div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-8">Rest well. Drink warm fluids. Visit PHC if symptoms worsen.</p>
+                    </div>`;
+                chat.appendChild(aiMsg);
+                chat.scrollTop = chat.scrollHeight;
+            }, 1800);
+        }
+    </script>
+</body>
+</html>
