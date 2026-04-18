@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwasthAI • AI Symptom Checker for Bharat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500&family=Cormorant+Garamond:wght@400;500;600&family=Great+Vibes&display=swap');
+        
+        :root {
+            /* 2026 Healthcare Trends Palette */
+            --primary-deep-teal: #0f766e;     /* Transformative Teal – calm, trustworthy, restorative */
+            --primary-teal: #14b8a6;          /* Bright accent teal – freshness & innovation */
+            --accent-soft-green: #10b981;     /* Soft clinical green for wellness & low-risk */
+            --neutral-warm: #f8f1eb;          /* Warm off-white / stone for grounding comfort */
+            --text-dark: #0f172a;
+            --color-creamy-primrose: #FDF4A9;
+            --color-muted-petrol: #3B9A9C;
+            --color-oceanic-teal: #41ABAE;
+            --color-deep-forest: #245643;
+        }
+        
+        * {
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, box-shadow;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 200ms;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        p {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            letter-spacing: 0.005em;
+        }
+
+        .script-font {
+            font-family: 'Great Vibes', cursive;
+        }
+        
+        .heading-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .hero-bg {
+            background: linear-gradient(180deg, var(--color-creamy-primrose) 0%, var(--color-muted-petrol) 32%, var(--color-oceanic-teal) 64%, var(--color-deep-forest) 100%);
+        }
+
+        .section-header::after {
+            content: '';
+            position: absolute;
+            width: 48px;
+            height: 3px;
+            background: var(--primary-teal);
+            bottom: -8px;
+            left: 0;
+            border-radius: 9999px;
+        }
+
+        /* Clean professional hover */
+        .feature-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 25px 25px 50px -12px rgb(15 118 110 / 0.1);
+        }
+        
+        /* Subtle voice bars using 2026 teal */
+        .voice-wave {
+            display: flex;
+            align-items: flex-end;
+            height: 48px;
+            gap: 3px;
+        }
+        
+        .bar {
+            width: 5px;
+            background: var(--primary-teal);
+            animation: voicePulse 1.4s ease-in-out infinite;
+            border-radius: 9999px;
+        }
+        
+        .bar:nth-child(2) { animation-delay: 120ms; }
+        .bar:nth-child(3) { animation-delay: 240ms; }
+        .bar:nth-child(4) { animation-delay: 80ms; }
+        .bar:nth-child(5) { animation-delay: 320ms; }
+        
+        @keyframes voicePulse {
+            0%, 100% { height: 12%; }
+            50% { height: 100%; }
+        }
+        
+        /* Clean result animation */
+        @keyframes popIn {
+            0% { opacity: 0; transform: translateY(12px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-card {
+            animation: popIn 0.4s ease forwards;
+        }
+        
+        /* Refined 2026 primary button */
+        .primary-btn {
+            background: var(--primary-teal);
+            color: #0f172a;
+            box-shadow: 0 10px 15px -3px rgb(20 184 166);
+        }
+        
+        .primary-btn:hover {
+            background: var(--primary-deep-teal);
+            color: white;
+            box-shadow: 0 10px 15px -3px rgb(15 118 110);
+        }
+        
+        input:focus {
+            border-color: var(--primary-teal);
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-[#f8f1eb] text-slate-900 overflow-x-hidden">
+    <!-- NAVBAR – 2026 clean healthcare look -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-8 py-6 flex items-center justify-between">
+            <div class="flex items-center gap-x-3">
+                <div class="w-9 h-9 bg-[#0f766e] rounded-2xl flex items-center justify-center text-3xl text-white">
+                    🩺
+                </div>
+                <h1 class="heading-font text-3xl tracking-[-1px] text-slate-900">SwasthAI</h1>
+                <span class="text-xs font-semibold px-4 py-1 bg-teal-50 text-teal-700 rounded-3xl">हिंदी • छत्तीसगढ़ी • বাংলা • தமிழ்</span>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-x-8 text-sm font-medium text-slate-700">
+                <a href="#problem" onclick="document.getElementById('problem').scrollIntoView({ behavior: 'smooth' })" class="hover:text-[#0f766e]">Problem</a>
+                <a href="#features" onclick="document.getElementById('features').scrollIntoView({ behavior: 'smooth' })" class="hover:text-[#0f766e]">Features</a>
+                <a href="#demo" onclick="document.getElementById('demo').scrollIntoView({ behavior: 'smooth' })" class="hover:text-[#0f766e]">Live Demo</a>
+                <a href="#" class="hover:text-[#0f766e]">Offline Mode</a>
+                <a href="#" class="hover:text-[#0f766e]">Rural Clinics</a>
+            </div>
+            
+            <div class="flex items-center gap-x-4">
+                <button onclick="toggleLanguage()" 
+                        class="flex items-center gap-x-2 px-6 py-3 rounded-3xl bg-slate-100 hover:bg-slate-200 text-sm font-medium">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="current-lang">हिंदी</span>
+                </button>
+                
+                <button onclick="document.getElementById('demo').scrollIntoView({ behavior: 'smooth' })" 
+                        class="primary-btn px-8 py-3 rounded-3xl font-semibold flex items-center gap-x-2">
+                    <i class="fa-solid fa-microphone"></i>
+                    Try Demo
+                </button>
+                
+                <button onclick="toggleMobileMenu()" class="md:hidden text-2xl text-slate-700">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-slate-200 px-8 py-8">
+            <div class="flex flex-col gap-y-6 text-lg font-medium text-slate-700">
+                <a href="#problem" onclick="document.getElementById('problem').scrollIntoView({ behavior: 'smooth' });toggleMobileMenu()" class="flex items-center gap-x-3">Problem Statement</a>
+                <a href="#features" onclick="document.getElementById('features').scrollIntoView({ behavior: 'smooth' });toggleMobileMenu()" class="flex items-center gap-x-3">Core Features</a>
+                <a href="#demo" onclick="document.getElementById('demo').scrollIntoView({ behavior: 'smooth' });toggleMobileMenu()" class="flex items-center gap-x-3">Live Demo</a>
+                <button onclick="document.getElementById('demo').scrollIntoView({ behavior: 'smooth' });toggleMobileMenu()" 
+                        class="mt-4 w-full py-4 primary-btn text-lg font-semibold rounded-3xl">Start Voice Demo</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO – Updated with 2026 Transformative Teal + warm neutral -->
+    <header class="hero-bg min-h-screen flex items-center relative">
+        <div class="max-w-7xl mx-auto px-8 relative z-10 pt-12">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="inline-flex items-center gap-x-2 bg-teal-50 text-[#0f766e] text-sm font-semibold px-6 py-2 rounded-3xl mb-6">
+                        2026 Healthcare Trend • Transformative Teal
+                    </div>
+                    
+                    <h1 class="text-6xl md:text-7xl leading-[1.05] heading-font tracking-[-2px] mb-6 text-slate-900">
+                        AI Symptom Checker<br>that speaks your language
+                    </h1>
+                    
+                    <p class="text-2xl text-slate-600 max-w-lg mb-10">
+                        Voice + text in Hindi, Chhattisgarhi, Bengali, Tamil &amp; 20+ regional languages.<br>
+                        Calming. Accurate. Works offline.
+                    </p>
+                    
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="document.getElementById('demo').scrollIntoView({ behavior: 'smooth' })" 
+                                class="primary-btn px-10 py-6 text-2xl font-semibold rounded-3xl flex items-center gap-x-4">
+                            <i class="fa-solid fa-microphone"></i>
+                            TRY VOICE DEMO
+                        </button>
+                        
+                        <a href="#" 
+                           class="px-8 py-6 border border-slate-300 text-slate-700 hover:border-[#14b8a6] rounded-3xl flex items-center gap-x-3 text-xl font-medium">
+                            <i class="fa-solid fa-download"></i>
+                            Download APK
+                        </a>
+                    </div>
+                    
+                    <div class="mt-12 flex items-center gap-x-8">
+                        <div class="flex items-center text-sm text-slate-500">
+                            <div class="flex -space-x-3">
+                                <div class="w-7 h-7 bg-teal-100 rounded-2xl flex items-center justify-center ring-2 ring-white text-base">🇮🇳</div>
+                            </div>
+                            <span class="ml-4">Trusted in 12+ states • 8,400+ rural families</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Phone mock with refined teal palette -->
+                <div class="hidden md:flex justify-center">
+                    <div class="w-80 bg-white rounded-3xl shadow-2xl border border-slate-100 p-3">
+                        <div class="bg-slate-950 text-white rounded-3xl h-[560px] flex flex-col overflow-hidden">
+                            <div class="bg-[#0f766e] p-4 flex justify-between items-center">
+                                <div class="flex items-center gap-x-2 text-white">
+                                    🩺 <span class="font-semibold">SwasthAI</span>
+                                </div>
+                                <div class="text-xs opacity-90">Madhya Pradesh • हिंदी</div>
+                            </div>
+                            
+                            <div class="flex-1 p-6 flex flex-col">
+                                <div class="text-center mb-8">
+                                    <p class="text-[#14b8a6] text-sm font-medium">Voice input active</p>
+                                    <div class="voice-wave mx-auto mt-4">
+                                        <div class="bar"></div>
+                                        <div class="bar"></div>
+                                        <div class="bar"></div>
+                                        <div class="bar"></div>
+                                        <div class="bar"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-slate-900 rounded-2xl p-5 text-sm mb-8">
+                                    <p class="text-[#14b8a6] mb-1">You said:</p>
+                                    <p class="text-white">"Bukhar aur khansi hai"</p>
+                                </div>
+                                
+                                <div class="space-y-4 text-sm flex-1">
+                                    <div class="flex justify-between items-center bg-slate-900/70 px-4 py-4 rounded-2xl">
+                                        <span>Common Cold</span>
+                                        <span class="px-5 py-1 bg-[#10b981] text-white text-xs font-semibold rounded-3xl">Low risk</span>
+                                    </div>
+                                    <div class="flex justify-between items-center bg-slate-900/70 px-4 py-4 rounded-2xl">
+                                        <span>Flu</span>
+                                        <span class="px-5 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-3xl">Medium risk</span>
+                                    </div>
+                                    <div class="flex justify-between items-center bg-slate-900/70 px-4 py-4 rounded-2xl">
+                                        <span>Pneumonia (possible)</span>
+                                        <span class="px-5 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-3xl">High risk</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-12 left-1/2 flex items-center gap-x-8 text-xs text-slate-500 font-medium">
+            <div class="flex items-center"><span class="inline-block w-2 h-2 bg-[#0f766e] rounded-full mr-2"></span> Offline ready</div>
+            <div class="flex items-center"><span class="inline-block w-2 h-2 bg-[#0f766e] rounded-full mr-2"></span> Voice-first</div>
+            <div class="flex items-center"><span class="inline-block w-2 h-2 bg-[#0f766e] rounded-full mr-2"></span> 22+ Indian languages</div>
+        </div>
+    </header>
+
+    <!-- WHAT IS SWASTHAI -->
+    <section id="about" class="bg-white py-24">
+        <div class="max-w-7xl mx-auto px-8">
+            <div class="grid lg:grid-cols-2 gap-16 items-start">
+                <div>
+                    <span class="text-sm font-semibold uppercase tracking-[0.35em] text-[#245643]">What is SwasthAI?</span>
+                    <h2 class="mt-4 text-4xl md:text-5xl font-semibold tracking-[-1px] text-slate-900">Multilingual AI Symptom Checker for rural India</h2>
+                    <p class="mt-6 text-lg leading-8 text-slate-700 max-w-2xl">
+                        SwasthAI is a smart digital health assistant that uses Artificial Intelligence to help people understand their health symptoms.
+                        Unlike many standard apps, it supports regional languages and lets users speak or type health concerns in Hindi, Telugu, Tamil, and more.
+                        The tool serves as a preliminary guide, giving a clear risk level of Low, Medium, or High so users know how quickly they should seek medical care.
+                    </p>
+                </div>
+
+                <div class="space-y-8">
+                    <div class="p-8 rounded-3xl shadow-lg border border-slate-200 bg-slate-50">
+                        <h3 class="text-2xl font-semibold text-slate-900">The Problem: Healthcare Barriers in Rural Areas</h3>
+                        <ul class="mt-6 space-y-4 text-slate-700">
+                            <li class="flex gap-x-3">
+                                <span class="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#41ABAE] text-white">1</span>
+                                <span><strong>Limited access:</strong> Many residents must travel long distances for even a basic consultation.</span>
+                            </li>
+                            <li class="flex gap-x-3">
+                                <span class="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#41ABAE] text-white">2</span>
+                                <span><strong>Language barriers:</strong> Most health apps are only in English, making them hard to use comfortably.</span>
+                            </li>
+                            <li class="flex gap-x-3">
+                                <span class="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#41ABAE] text-white">3</span>
+                                <span><strong>Connectivity issues:</strong> Unreliable internet often makes online health services unusable when they are needed most.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="p-8 rounded-3xl shadow-lg border border-slate-200 bg-[#FDF4A9]">
+                        <h3 class="text-2xl font-semibold text-slate-900">Our Solution: Key Features</h3>
+                        <ul class="mt-6 space-y-4 text-slate-700">
+                            <li class="flex gap-x-3">
+                                <span class="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#245643] text-white">✓</span>
+                                <span><strong>Voice & language support:</strong> Users can speak naturally in their local dialect, making the app easy to use even without strong literacy.</span>
+                            </li>
+                            <li class="flex gap-x-3">
+                                <span class="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#245643] text-white">✓</span>
+                                <span><strong>Intelligent risk assessment:</strong> AI analyzes symptoms and provides simple, reliable guidance.</span>
+                            </li>
+                            <li class="flex gap-x-3">
+                                <span class="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#245643] text-white">✓</span>
+                                <span><strong>Offline functionality:</strong> A local database enables guidance even when internet access is unavailable.</span>
+                            </li>
+                            <li class="flex gap-x-3">
+                                <span class="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#245643] text-white">✓</span>
+                                <span><strong>Emergency assistance:</strong> The app can locate nearby hospitals and share ambulance contact details during urgent situations.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROBLEM STATEMENT -->
+    <section id="problem" class="max-w-7xl mx-auto px-8 py-24 bg-white">
+        <div class="flex flex-col md:flex-row gap-12">
+            <div class="md:w-2/5">
+                <span class="uppercase text-[#0f766e] text-sm font-semibold tracking-widest">Problem Statement</span>
+                <h2 class="heading-font text-5xl text-slate-900 mt-6 leading-none">Rural families still wait hours for basic health advice</h2>
+                <p class="mt-8 text-xl text-slate-600">Existing tools are English-only, require internet, and feel clinical — not human.</p>
+                
+                <div class="mt-16 grid grid-cols-3 gap-8">
+                    <div>
+                        <div class="text-5xl font-semibold text-slate-900">72%</div>
+                        <p class="text-slate-500 mt-2 text-sm">of rural Indians have no doctor nearby</p>
+                    </div>
+                    <div>
+                        <div class="text-5xl font-semibold text-slate-900">84M+</div>
+                        <p class="text-slate-500 mt-2 text-sm">prefer voice interaction in their mother tongue</p>
+                    </div>
+                    <div>
+                        <div class="text-5xl font-semibold text-slate-900">0</div>
+                        <p class="text-slate-500 mt-2 text-sm">truly offline, multilingual symptom tools</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="md:w-3/5 bg-[#f8f1eb] rounded-3xl p-12">
+                <ul class="space-y-8 text-lg text-slate-700">
+                    <li class="flex gap-x-5">
+                        <span class="text-[#0f766e] text-4xl leading-none mt-1">•</span>
+                        <div>Rural &amp; semi-urban families often lack immediate access to doctors</div>
+                    </li>
+                    <li class="flex gap-x-5">
+                        <span class="text-[#0f766e] text-4xl leading-none mt-1">•</span>
+                        <div>Most symptom checkers are only in English</div>
+                    </li>
+                    <li class="flex gap-x-5">
+                        <span class="text-[#0f766e] text-4xl leading-none mt-1">•</span>
+                        <div>People want <span class="font-semibold text-[#0f766e]">voice-based help</span> in Hindi, Chhattisgarhi, Bengali, Tamil, and more</div>
+                    </li>
+                    <li class="flex gap-x-5">
+                        <span class="text-[#0f766e] text-4xl leading-none mt-1">•</span>
+                        <div>A simple, offline-first tool can truly bridge this gap</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- CORE FEATURES -->
+    <section id="features" class="max-w-7xl mx-auto px-8 py-24">
+        <div class="text-center mb-16">
+            <span class="uppercase text-[#0f766e] text-sm font-semibold tracking-widest">Core Features</span>
+            <h2 class="heading-font text-5xl text-slate-900 mt-6">Simple, powerful, and built for India</h2>
+        </div>
+
+        <!-- OUR SERVICES -->
+
+    <div class="text-center mb-16">
+        <span class="uppercase text-[#0f766e] text-sm font-semibold tracking-widest">Our Services</span>
+        <h2 class="heading-font text-5xl text-slate-900 mt-6">Comprehensive healthcare solutions</h2>
+    </div>
+    
+   
+    <a href="demo.html" class="feature-card bg-white border border-slate-100 rounded-3xl p-8 block">
+    <div class="text-6xl mb-8">🩺</div>
+    <h3 class="text-2xl font-semibold mb-5">Symptom Checking</h3>
+    <ul class="space-y-5 text-slate-600">
+        <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> Voice and text analysis</li>
+        <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> Risk assessment</li>
+        <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> Multilingual support</li>
+    </ul>
+</a>
+        
+        
+        
+        <a href="clinics.html" class="feature-card bg-white border border-slate-100 rounded-3xl p-8 block">
+    <div class="text-6xl mb-8">🏥</div>
+    <h3 class="text-2xl font-semibold mb-5">Clinic Integration</h3>
+    <ul class="space-y-5 text-slate-600">
+        <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> Hospital locator</li>
+        <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> Emergency contacts</li>
+        <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> Data sharing</li>
+    </ul>
+</a>
+        
+        <a href="report.html" class="feature-card bg-white border border-slate-100 rounded-3xl p-8 block">
+    <div class="text-6xl mb-8">📊</div>
+    <h3 class="text-2xl font-semibold mb-5">Reports & Analytics</h3>
+    <ul class="space-y-5 text-slate-600">
+        <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> Usage tracking</li>
+        <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> Health insights</li>
+        <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> Community data</li>
+    </ul>
+ </a>
+
+   
+
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="feature-card bg-white border border-slate-100 rounded-3xl p-8">
+                <div class="text-6xl mb-8">🌐</div>
+                <h3 class="text-2xl font-semibold mb-5">Multilingual Support</h3>
+                <ul class="space-y-5 text-slate-600">
+                    <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> Text + voice in regional languages</li>
+                    <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> Health guidance in the same language</li>
+                    <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> Powered by translation APIs + custom medical glossary</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card bg-white border border-slate-100 rounded-3xl p-8">
+                <div class="text-6xl mb-8">🧠</div>
+                <h3 class="text-2xl font-semibold mb-5">AI Symptom Analysis</h3>
+                <ul class="space-y-5 text-slate-600">
+                    <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> Understands “bukhar aur khansi hai”</li>
+                    <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> Maps symptoms to likely conditions</li>
+                    <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> Shows clear <span class="font-semibold">risk level</span> (low / medium / high)</li>
+                </ul>
+            </div>
+           
+            
+            <div class="feature-card bg-white border border-slate-100 rounded-3xl p-8">
+                <div class="text-6xl mb-8">👵</div>
+                <h3 class="text-2xl font-semibold mb-5">Made for Everyone</h3>
+                <ul class="space-y-5 text-slate-600">
+                    <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> Voice-first for non-literate users</li>
+                    <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> Large icons &amp; simple interface</li>
+                    <li class="flex items-start gap-x-3"><i class="fa-solid fa-check text-[#14b8a6] mt-1"></i> SMS fallback for basic phones</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+  
+    
+
+    <!-- FINAL CTA -->
+    <div class="bg-[#0f766e] text-white py-16 text-center">
+        <div class="max-w-3xl mx-auto px-8">
+            
+            
+            
+           <h2 class="heading-font text-4xl md:text-5xl mb-6">Ready to build the future of rural healthcare?</h2>
+            
+            
+            <p> &copy; 2025 SwasthAI. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        function initializeTailwind() {
+            return { config(userConfig = {}) { return { configUser: userConfig, theme: { extend: {} } } } }
+        }
+
+        let recognition = null
+        let isListening = false
+        
+        function toggleVoice() {
+            const btn = document.getElementById('voiceBtn')
+            const icon = document.getElementById('micIcon')
+            const text = document.getElementById('voiceText')
+            
+            if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+                alert("Your browser supports voice input. In the real app we use Indic speech-to-text.")
+                return
+            }
+            
+            if (!recognition) {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)()
+                recognition.lang = 'hi-IN'
+                recognition.onresult = (event) => {
+                    document.getElementById('symptomInput').value = event.results[0][0].transcript
+                    analyzeSymptoms()
+                    isListening = false
+                    icon.classList.remove('fa-stop')
+                    icon.classList.add('fa-microphone')
+                    text.textContent = 'START SPEAKING'
+                }
+            }
+            
+            if (isListening) {
+                recognition.stop()
+                isListening = false
+                icon.classList.remove('fa-stop')
+                icon.classList.add('fa-microphone')
+                text.textContent = 'START SPEAKING'
+            } else {
+                recognition.start()
+                isListening = true
+                icon.classList.remove('fa-microphone')
+                icon.classList.add('fa-stop')
+                text.textContent = 'LISTENING...'
+            }
+        }
+        
+        function analyzeSymptoms() {
+            const input = document.getElementById('symptomInput').value.trim() || "Bukhar aur khansi hai"
+            const chat = document.getElementById('chatWindow')
+            
+            const userMsg = document.createElement('div')
+            userMsg.className = 'flex justify-end'
+            userMsg.innerHTML = `<div class="max-w-[70%] bg-[#0f766e] text-white px-6 py-4 rounded-3xl rounded-br-none">${input}</div>`
+            chat.appendChild(userMsg)
+            
+            const loading = document.createElement('div')
+            loading.className = 'flex gap-x-4'
+            loading.innerHTML = `
+                <div class="w-9 h-9 bg-[#0f766e] text-white rounded-2xl flex items-center justify-center text-2xl flex-shrink-0">🩺</div>
+                <div class="flex-1 bg-white px-6 py-4 rounded-3xl rounded-bl-none flex items-center">
+                    <div class="w-4 h-4 border-2 border-[#14b8a6] border-t-transparent animate-spin rounded-full"></div>
+                    <span class="ml-3 text-slate-600">Analyzing symptoms...</span>
+                </div>`
+            chat.appendChild(loading)
+            chat.scrollTop = chat.scrollHeight
+            
+            setTimeout(() => {
+                loading.remove()
+                
+                const aiMsg = document.createElement('div')
+                aiMsg.className = 'flex gap-x-4 result-card'
+                aiMsg.innerHTML = `
+                    <div class="w-9 h-9 bg-[#0f766e] text-white rounded-2xl flex items-center justify-center text-2xl flex-shrink-0">🩺</div>
+                    <div class="flex-1 bg-white px-6 py-5 rounded-3xl rounded-bl-none">
+                        <p class="text-[#0f766e] font-medium mb-4">Based on your symptoms:</p>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center px-5 py-4 bg-slate-50 rounded-2xl text-sm">
+                                <div>Common Cold</div>
+                                <div class="px-6 py-1 bg-[#10b981] text-white rounded-3xl text-xs font-medium">Low risk</div>
+                            </div>
+                            <div class="flex justify-between items-center px-5 py-4 bg-slate-50 rounded-2xl text-sm">
+                                <div>Flu</div>
+                                <div class="px-6 py-1 bg-amber-100 text-amber-700 rounded-3xl text-xs font-medium">Medium risk</div>
+                            </div>
+                            <div class="flex justify-between items-center px-5 py-4 bg-slate-50 rounded-2xl text-sm">
+                                <div>Pneumonia (possible)</div>
+                                <div class="px-6 py-1 bg-red-100 text-red-700 rounded-3xl text-xs font-medium">High risk • See doctor</div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-8">Rest well. Drink warm fluids. Visit PHC if symptoms worsen.</p>
+                    </div>`
+                chat.appendChild(aiMsg)
+                chat.scrollTop = chat.scrollHeight
+            }, 1800)
+        }
+        
+        function toggleLanguage() {
+            const langEl = document.getElementById('current-lang')
+            const langs = ['हिंदी', 'छत्तीसगढ़ी', 'বাংলা', 'தமிழ்', 'EN']
+            let idx = langs.indexOf(langEl.textContent)
+            langEl.textContent = langs[(idx + 1) % langs.length]
+        }
+        
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('hidden')
+        }
+        
+        function copyCode() {
+            const html = document.documentElement.outerHTML
+            navigator.clipboard.writeText(html).then(() => {
+                const btn = document.querySelector('button[onclick="copyCode()"]')
+                const originalText = btn.innerHTML
+                btn.innerHTML = '✅ COPIED!'
+                setTimeout(() => btn.innerHTML = originalText, 2200)
+            })
+        }
+        
+        window.onload = function () {
+            initializeTailwind()
+            console.log('%c✅ SwasthAI — Updated with 2026 Healthcare Trends (Transformative Teal palette)', 'color:#0f766e; font-size:15px')
+        }
+    </script>
+</body>
+</html>
